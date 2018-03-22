@@ -113,12 +113,41 @@ def gaussSeidel(A, b, x = None, iterations = 100):
 	#returns our answer
 	return x0
 
+def visualizeResult(temps, N, ans):
+
+	top = temps['top']
+	bottom = temps['bottom']
+	left = temps['left']
+	right = temps['right']
+
+	#printing top edge
+	for i in range(N+1):
+		print('{:.2f}'.format(top),end=', ')
+	print()
+
+	#printing matrix
+	for i in range(N-1):
+
+		#printing left edge temperature
+		print('{:.2f}'.format(left),end=', ')
+
+		for j in range(N-1):
+			print('{:.2f}'.format(ans[(i*(N-1))+j]),end=', ')
+
+		#printing right edge temperature
+		print('{:.2f}'.format(right),end='\n')
+
+	#printing bottom edge
+	for i in range(N+1):
+		print('{:.2f}'.format(bottom),end=', ')
+	print()
+
 if __name__ == "__main__":
 
 	temps = {'top'	 : 20,
 			 'bottom': 30,
-			 'left'	 : 20,
-			 'right' : 45}
+			 'left'	 : 25,
+			 'right' : 20}
 
 	print('Enter number of slices:')
 	#number of slices
@@ -129,4 +158,5 @@ if __name__ == "__main__":
 
 	#solving system using gaussSeidel method
 	ans = gaussSeidel(linsys['A'],linsys['b'])
-	print('temperatures are:', ans)
+
+	visualizeResult(temps, N, ans)
