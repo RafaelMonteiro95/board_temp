@@ -1,4 +1,5 @@
 import numpy as np
+import matplotlib.pyplot as plt
 
 def generateSystem(N,temps):
 	"""Generates a linear equation system for the board temperature problem
@@ -113,34 +114,49 @@ def gaussSeidel(A, b, x = None, iterations = 100):
 	#returns our answer
 	return x0
 
-def visualizeResult(temps, N, ans):
-
+def resultMatrix(temps, N, ans):
+	""""turns temps and system answer into a matrix with temperatures"
+	
+	Args:
+	    temps (dictionary): temperatures for each edge of the board
+	    N (int): number of slices on the board
+	    ans (array): answers of the linear system
+	
+	Returns:
+	    TYPE: Description
+	"""
 	top = temps['top']
 	bottom = temps['bottom']
 	left = temps['left']
 	right = temps['right']
 
-	#printing top edge
-	for i in range(N+1):
-		print('{:.2f}'.format(top),end=', ')
-	print()
+	visu_matrix = np.zeros([N+1,N+1])
 
-	#printing matrix
-	for i in range(N-1):
+	#sides
+	for i in range(1,N):
+		visu_matrix[0][i] = top
+		visu_matrix[i][0] = left
+		visu_matrix[i][N] = right
+		visu_matrix[N][i] = bottom
+	#upper-left
+	visu_matrix[0][0] = (top+left)/2.0
+	#upper-right
+	visu_matrix[0][N] = (top+right)/2.0
+	#bottom-left
+	visu_matrix[N][0] = (left+bottom)/2.0
+	#bottom-right
+	visu_matrix[N][N] = (right+bottom)/2.0
 
-		#printing left edge temperature
-		print('{:.2f}'.format(left),end=', ')
+	row = 0
+	col = 0
+	for value in ans:
+		visu_matrix[row+1][col+1] = ans[(row*(N-1) + col)]
+		col += 1
+		if(col == N-1):
+			row += 1
+			col = 0;
 
-		for j in range(N-1):
-			print('{:.2f}'.format(ans[(i*(N-1))+j]),end=', ')
-
-		#printing right edge temperature
-		print('{:.2f}'.format(right),end='\n')
-
-	#printing bottom edge
-	for i in range(N+1):
-		print('{:.2f}'.format(bottom),end=', ')
-	print()
+	return visu_matrix
 
 if __name__ == "__main__":
 
@@ -151,12 +167,20 @@ if __name__ == "__main__":
 
 	print('Enter number of slices:')
 	#number of slices
-	N = int(input())
+	# N = int(input())
+	N = 3
 
 	#generating a linear equation system for the given temps and number of slices
 	linsys = generateSystem(N,temps)
 
 	#solving system using gaussSeidel method
 	ans = gaussSeidel(linsys['A'],linsys['b'])
+	print('x:', ans)
 
-	visualizeResult(temps, N, ans)
+	visu = resultMatrix(temps, N, ans)
+	print('resulting matrix:')
+	print(visu)
+
+	#plotting heatmap
+	plt.imshow(visu, cmap='plasma', interpolation='gaussian',origin='lower')
+	plt.show()
